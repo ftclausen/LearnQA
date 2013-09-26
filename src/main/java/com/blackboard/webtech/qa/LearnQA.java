@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-
+import static org.junit.Assert.*;
 
 public class LearnQA {
     public static void main(String[] args) {
@@ -37,13 +37,19 @@ public class LearnQA {
     	// TODO: Pass through as file containing list
     	String url = "https://webtech-test.blackboard.com/";
     	
-    	// NOTE: Not doing any assertions yet - just building the basic test flow first
+    	// The constructor of each page object checks to see 
+    	// if the correct page has been passed in
     	LearnLoginPage loginPage = new LearnLoginPage(driver, url);
     	LearnHomePage homePage = loginPage.loginAs(username, password);
     	LearnSystemAdminPage adminPage = homePage.getSystemAdminPage();
+    	
     	LearnCourseLifecycle courseController = adminPage.getCoursesPage();
     	courseController.createCourse();
-    	// Implement enrollInCourse(), deleteCourse(), searchCourse()
+    	assertTrue(courseController.isCourseCreated());
+    	System.out.println("DEBUG: Created course : " + courseController.getCourseName());
+    	assertTrue(courseController.isCourseSearchable());
+    	
+    	// Implement enrollInCourse(), deleteCourse()
     }
     
 }

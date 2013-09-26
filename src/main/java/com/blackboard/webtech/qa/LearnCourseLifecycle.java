@@ -2,8 +2,11 @@ package com.blackboard.webtech.qa;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Action;
@@ -11,6 +14,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
 
 public class LearnCourseLifecycle {
 	@FindBy(how = How.ID, using = "pageTitleText")
@@ -29,6 +33,14 @@ public class LearnCourseLifecycle {
 	private WebElement selfEnrollmentRadioButton;
 	@FindBy(how = How.NAME, using = "bottom_Submit")
 	private WebElement submitButton;
+	@FindBy(how = How.NAME, using = "courseInfoSearchKeyString")
+	private WebElement searchDropDown;
+	@FindBy(how = How.ID, using = "courseInfoSearchText")
+	private WebElement searchBox;
+	@FindBy(how = How.ID, using = "listContainer_databody")
+	private WebElement searchResultsTable;
+	@FindBy(how = How.TAG_NAME, using = "input")
+	private WebElement goButtonCandidate;
 	
 	private String courseName;
 	private String courseId;
@@ -112,5 +124,32 @@ public class LearnCourseLifecycle {
 		} else {
 			this.courseId = courseId;
 		}
+	}
+	
+	public boolean isCourseCreated() {
+		// Not using annotations to find this one since it may not show up.
+		// Also using implicit wait wit the driver so don't need to explicitly 
+		// wait here
+		// Using findElements instead of findElement since it will return empty list
+		// instead of throwing an exception
+		return driver.findElements(By.id("goodMsg1")).size() > 0;  
+	}
+	
+	public boolean isCourseSearchable() {
+		WebElement goButton = null;
+		Select searchOn = new Select(searchDropDown);
+		searchOn.selectByValue("CourseId");
+		searchBox.sendKeys(courseId);
+		List<WebElement> inputs = driver.findElements(By.tagName("input"));
+		for (WebElement currentElement : inputs) {
+			if (currentElement.getAttribute("value").equals("Go")) {
+				goButton = currentElement;
+				break;
+			}
+		}
+		goButton.click();
+		int resultCount = searchResultsTable.findElements(By.tagName("tr")).size();
+		System.out.println("DEBUG: Results found are : " + resultCount);
+		return resultCount > 0;
 	}
 }
